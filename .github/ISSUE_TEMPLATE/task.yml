@@ -1,46 +1,18 @@
 name: 작업 · 학습 · 테스트
-description: 구현 단위나 학습·테스트의 목표와 완료 조건을 기록합니다.
+description: 필요한 내용과 확인한 결과를 기록합니다.
 body:
-  - type: dropdown
-    id: kind
-    attributes:
-      label: 작업 종류
-      options:
-        - 구현
-        - 학습
-        - 테스트
-        - 팀 운영 · 제출
-    validations:
-      required: true
   - type: textarea
-    id: goal
+    id: content
     attributes:
-      label: 목표
-      description: 해결하려는 문제와 기대하는 동작을 적어주세요.
-    validations:
-      required: true
+      label: 내용
+      placeholder: 작업하거나 살펴볼 내용을 적어주세요.
   - type: textarea
-    id: scope
+    id: related
     attributes:
-      label: 관련 코드와 선행 작업
-      description: 수정할 파일·필드·함수와 관련 이슈를 적어 겹치는 작업을 확인합니다.
-      placeholder: "관련 공식 체크리스트: #번호 / 먼저 완료할 작업: #번호"
+      label: 관련 자료 · 이슈
+      placeholder: 관련 링크나 이슈 번호를 적어주세요.
   - type: textarea
-    id: acceptance
+    id: result
     attributes:
-      label: 완료 조건
-      description: 구현은 테스트 근거, 다른 팀원 리뷰, main 병합을 포함합니다. 학습·운영은 확인할 결과물을 적습니다.
-      value: |
-        - [ ] 목표 동작 또는 결과물 확인
-        - [ ] 관련 테스트 / 설명 / 자료 근거 기록
-        - [ ] 구현 작업인 경우 팀원 리뷰와 main 병합
-    validations:
-      required: true
-  - type: textarea
-    id: evidence
-    attributes:
-      label: 진행 결과와 검증 근거
-      description: 실행 명령·테스트 결과·PR 링크·막힌 점을 갱신합니다.
-  - type: markdown
-    attributes:
-      value: "실제 담당자는 Assignees에서 지정합니다. 담당자가 정해지지 않았으면 비워두고, 한 사람은 구현 이슈 하나만 진행 중으로 둡니다."
+      label: 확인 내용
+      placeholder: 확인한 내용이나 실행 결과를 적어주세요.
