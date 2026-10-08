@@ -1,0 +1,65 @@
+name: Threads checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      full_suite:
+        description: Run all 27 Project 1 tests (unfinished tasks may fail)
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: threads-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and smoke test
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install QEMU
+        run: sudo apt-get update && sudo apt-get install -y qemu-system-x86
+      - name: Build and run alarm-zero
+        run: bash scripts/threads-test.sh alarm-zero
+      - name: Upload smoke-test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: threads-smoke-${{ github.sha }}
+          path: |
+            pintos/threads/build/tests/threads/*.output
+            pintos/threads/build/tests/threads/*.errors
+            pintos/threads/build/tests/threads/*.result
+          if-no-files-found: ignore
+
+  full-suite:
+    name: Full Project 1 suite
+    if: github.event_name == 'workflow_dispatch' && inputs.full_suite
+    runs-on: ubuntu-22.04
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install QEMU
+        run: sudo apt-get update && sudo apt-get install -y qemu-system-x86
+      - name: Run all Threads tests
+        run: bash scripts/threads-test.sh all
+      - name: Upload full test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: threads-full-${{ github.sha }}
+          path: |
+            pintos/threads/build/results
+            pintos/threads/build/tests/threads/**/*.output
+            pintos/threads/build/tests/threads/**/*.errors
+            pintos/threads/build/tests/threads/**/*.result
+          if-no-files-found: ignore

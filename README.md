@@ -1,131 +1,68 @@
-# 📘 Docker기반 Pintos 개발 환경 구축 가이드 
+# PintOS · 7주차 팀 프로젝트
 
-이 문서는 **Windows**와 **macOS** 사용자가 Docker와 VSCode DevContainer 기능을 활용하여 Pintos OS 프로젝트를 빠르게 구축할 수 있도록 도와줍니다.
+Krafton Jungle **Project 1: Threads**를 학습하고 구현하는 비공개 팀 저장소입니다. 이번 주 범위는 Alarm Clock, Priority Scheduling, Priority Donation, MLFQS입니다.
 
-[**주의**]
-* ubunbu:22.04 버전은 충분한 테스트와 검증이 되지 않았습니다. 이 점을 주의해서 사용하시기 바랍니다.
+현재는 팀 협업 환경을 준비한 단계입니다. 제공된 기본 코드에는 과제 구현이 남아 있으므로 전체 테스트가 통과하지 않을 수 있습니다.
 
-[**참고**] 
-* pintos 도커 환경은 `64비트 기반 X86-64` 기반의 `ubuntu:22.04` 버전을 사용합니다.
-   * kaist-pintos는 오리지널 pintos와 달리 64비트 환경을 지원합니다.
-   * 이번 도커 환경은 ubuntu 22.04를 지원하여 vscode의 최신 버전에서 원격 연결이 안되는 문제를 해결하였습니다.
-* pintos 도커 환경은 kaist-pintos에서 추천하는 qemu 에뮬레이터를 설치하고 사용합니다. 
-* pintos 도커 환경은 9주차부터 13주차까지 같은 환경을 사용합니다. 이 기간동안 별도의 개발 환경을 제공하지 않습니다.
-* 기존 도커 환경과 달리 `vscode`와 통합된 디버깅 환경(F5로 시작하는)을 제공하지 않습니다. 디버깅이 필요한 경우 `gdb`를 사용하세요. 
-* vscode에서 터미널을 오픈하면 자동으로 `source /workspaces/pintos_22.04_lab_docker/pintos/activate`를 실행합니다.
+| 바로가기 | 내용 |
+| --- | --- |
+| [팀 작업 보드](https://github.com/users/CatIsApple/projects/6) | 사람별 담당, 진행 상태, 미배정 작업 |
+| [이슈](https://github.com/CatIsApple/PintOS/issues) | 공식 35개 체크리스트와 구현 작업 |
+| [팀 운영 규칙](docs/TEAM.md) | 역할 제안, 학습·구현 순서, 리뷰와 완료 기준 |
+| [팀원 시작 안내](docs/ONBOARDING.md) | 초대 수락, 환경 실행, 첫 PR |
 
----
+## 처음 시작하기
 
-## 1. Docker란 무엇인가요?
-
-**Docker**는 애플리케이션을 어떤 컴퓨터에서든 **동일한 환경에서 실행**할 수 있게 도와주는 **가상화 플랫폼**입니다.  
-
-Docker는 다음 구성요소로 이루어져 있습니다:
-
-- **Docker Engine**: 컨테이너를 실행하는 핵심 서비스
-- **Docker Image**: 컨테이너 생성에 사용되는 템플릿 (레시피 📃)
-- **Docker Container**: 이미지를 기반으로 생성된 실제 실행 환경 (요리 🍜)
-
-### ✅ AWS EC2와의 차이점
-
-| 구분 | EC2 같은 VM | Docker 컨테이너 |
-|------|-------------|-----------------|
-| 실행 단위 | OS 포함 전체 | 애플리케이션 단위 |
-| 실행 속도 | 느림 (수십 초 이상) | 매우 빠름 (거의 즉시) |
-| 리소스 사용 | 무거움 | 가벼움 |
-
----
-
-## 2. VSCode DevContainer란 무엇인가요?
-
-**DevContainer**는 VSCode에서 Docker 컨테이너를 **개발 환경**처럼 사용할 수 있게 해주는 기능입니다.
-
-- 코드를 실행하거나 디버깅할 때 **컨테이너 내부 환경에서 동작**
-- 팀원 간 **환경 차이 없이 동일한 개발 환경 구성** 가능
-- `.devcontainer` 폴더에 정의된 설정을 VSCode가 읽어 자동 구성
-
----
-
-## 3. Docker Desktop 설치하기
-
-1. Docker 공식 사이트에서 설치 파일 다운로드:  
-   👉 [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
-
-2. 설치 후 Docker Desktop 실행  
-   - Windows: Docker 아이콘이 트레이에 떠야 함  
-   - macOS: 상단 메뉴바에 Docker 아이콘 확인
-
----
-
-## 4. 프로젝트 파일 다운로드 (히스토리 없이)
-
-터미널(CMD, PowerShell, zsh 등)에서 아래 명령어로 프로젝트 폴더만 내려받습니다:
+저장소 초대를 수락한 뒤 Docker Desktop, VS Code, VS Code의 Dev Containers 확장을 준비합니다.
 
 ```bash
-git clone --depth=1 https://github.com/krafton-jungle/pintos_22.04_lab_docker.git 
+git clone https://github.com/CatIsApple/PintOS.git
+cd PintOS
+code .
 ```
 
-- `--depth=1` 옵션은 git commit 히스토리를 생략하고 **최신 파일만 가져옵니다.**
+VS Code 명령 팔레트에서 **Dev Containers: Reopen in Container**를 실행합니다. 컨테이너는 Ubuntu 22.04 / amd64이며 작업 경로는 `/workspaces/PintOS`입니다. Apple Silicon에서는 amd64 에뮬레이션으로 실행하므로 첫 빌드가 오래 걸릴 수 있습니다.
 
-### 📂 다운로드 후 폴더 구조 설명
-
-```
-pintos_22.04_lab_docker/
-├── .devcontainer/
-│   ├── devcontainer.json      # VSCode에서 컨테이너 환경 설정
-│   └── Dockerfile             # pintos 개발 환경 도커 이미지 정의
-│
-├── pintos
-│   ├── threads                # 9주차 threads 프로젝트 폴더
-│   ├── userprog               # 10-11주차 user program 프로젝트 폴더
-│   └── vm                     # 12-13주차 virtual memory 프로젝트 폴더
-│
-└── README.md                  # 현재 문서
-```
----
-
-## 5. VSCode에서 해당 프로젝트 폴더 열기
-
-1. VSCode를 실행
-2. `파일 → 폴더 열기`로 방금 클론한 `pintos_22.04_lab_docker` 폴더를 선택
-
----
-
-## 6. 개발 컨테이너: 컨테이너에서 열기
-
-1. VSCode에서 `Ctrl+Shift+P` (Windows/Linux) 또는 `Cmd+Shift+P` (macOS)를 누릅니다.
-2. 명령어 팔레트에서 `Dev Containers: Reopen in Container`를 선택합니다.
-3. 이후 컨테이너가 자동으로 실행되고 빌드됩니다. 처음 컨테이너를 열면 빌드하는 시간이 오래걸릴 수 있습니다. 빌드 후, 프로젝트가 **컨테이너 안에서 실행됨**.
-
----
-
-## 7. C 파일에 브레이크포인트 설정 후 디버깅 (F5)
-pintos 랩에서는 vscode기반의 디버깅을 지원하지 않습니다. 
-
----
-## 8. 새로운 Git 리포지토리에 Commit & Push 하기
-
-금주 프로젝트를 개인 Git 리포와 같은 다른 리포지토리에 업로드하려면, 기존 Git 연결을 제거하고 새롭게 초기화해야 합니다.
-
-### ✅ 완전히 새로운 Git 리포로 업로드하는 방법
-
-아래 명령어를 순서대로 실행하세요:
+컨테이너 터미널에서 빌드하고 테스트합니다.
 
 ```bash
-rm -rf .git
-git init
-git remote add origin https://github.com/myusername/my-new-repo.git
-git add .
-git commit -m "Clean start"
-git push -u origin main
+cd /workspaces/PintOS
+./scripts/threads-test.sh alarm-zero
+./scripts/threads-test.sh all
 ```
 
-### 📌 설명
+기본 명령을 직접 실행하려면:
 
-- `rm -rf .git`: 기존 Git 기록과 연결을 완전히 삭제합니다.
-- `git init`: 현재 폴더를 새로운 Git 리포지토리로 초기화합니다.
-- `git remote add origin ...`: 새로운 리포지토리 주소를 origin으로 등록합니다.
-- `git add .` 및 `git commit`: 모든 파일을 커밋합니다.
-- `git push`: 새로운 리포에 최초 업로드(Push)합니다.
+```bash
+cd /workspaces/PintOS/pintos
+source activate
+cd threads
+make
+make check
+```
 
-이 과정을 거치면 기존 리포와의 연결은 완전히 제거되고, **새로운 독립적인 프로젝트로 관리**할 수 있습니다.
+전체 결과는 `pintos/threads/build/results`, 개별 로그는 `pintos/threads/build/tests/threads/` 아래의 `.output` 파일에서 확인합니다. MLFQS 로그는 그 안의 `mlfqs/`에 있습니다. 구현 전 결과를 [#6 입문 학습](https://github.com/CatIsApple/PintOS/issues/6)에 기록하고 변경 후 결과와 비교하세요. 자동 CI는 빌드와 `alarm-zero`를 확인하며, 전체 테스트는 Actions에서 수동 실행할 수 있습니다. 자동 CI 성공만으로 과제 전체 완료를 판단하지 않습니다.
+
+## 함께 작업하기
+
+1. 보드의 미배정 이슈를 확인하고 **Assignees에 실제 담당자 1명**을 지정합니다. 한 사람은 구현 이슈 하나만 `In progress`로 진행합니다.
+2. 최신 `main`에서 `feature/<github-id>/<topic>` 브랜치를 만듭니다.
+3. 작은 단위로 구현하고 관련 테스트 결과를 남깁니다. PR에 `Closes #이슈번호`를 연결합니다.
+4. 작성자를 제외한 팀원 1명이 코드를 리뷰하고 테스트 근거를 확인한 뒤 `main`에 병합합니다. 작은 PR을 매일 통합합니다.
+
+**테스트 근거 + 다른 팀원 리뷰 + `main` 병합**을 모두 충족하면 구현 이슈를 완료합니다. GitHub 설정에 의한 강제 여부와 관계없이 이 규칙을 적용합니다.
+
+## 코드 읽기와 구현 순서
+
+`struct thread`와 READY / RUNNING / BLOCKED 이해 → Alarm Clock → 기본 우선순위·선점 → 동기화 대기 순서 → 단일·복수 기부 → 중첩 기부 → MLFQS → 전체 회귀 테스트 순서로 진행합니다.
+
+첫 읽기 대상은 `pintos/include/threads/thread.h`, `pintos/threads/thread.c`, `pintos/devices/timer.c`, `pintos/threads/synch.c`입니다. 기능마다 요구사항을 읽고 상태 변화를 그린 뒤 직접 구현합니다. AI와 참고 코드는 개념·코드 흐름·실패 원인을 이해하는 데 활용하고, 팀원이 변경 이유를 설명할 수 있는 코드를 병합합니다.
+
+## 과제와 원본 자료
+
+- [7주차 LMS](https://jungle-lms.krafton.com/learning/1316)
+- [KAIST PintOS Project 1 명세](https://casys-kaist.github.io/pintos-kaist/project1/introduction.html)
+- [공식 이슈 CSV](https://github.com/krafton-jungle/SW-AI-ISSUE-TEMPLATE/blob/main/week7_issues_complete.csv)
+- [원본 Docker 저장소](https://github.com/krafton-jungle/pintos_22.04_lab_docker)
+- [원본 PintOS 저장소](https://github.com/krafton-jungle/pintos_ubuntu_22.04)
+- [보존한 원본 환경 안내](docs/UPSTREAM-README.md) — 원본 저장소명·이전 주차 표기가 포함되어 있습니다. 이 팀 저장소의 실행·협업 방법은 위 안내를 따릅니다.
