@@ -7,7 +7,7 @@ Alarm Clock · Priority Scheduling · Priority Donation · MLFQS
 | 작업 공간 | 개발 안내 |
 | --- | --- |
 | [팀 진행 보드](https://github.com/users/CatIsApple/projects/6) | [환경 설정 · 팀원 초대](docs/ONBOARDING.md) |
-| [WEEK7 이슈](https://github.com/CatIsApple/PintOS/issues) | [자동 실행 결과](https://github.com/CatIsApple/PintOS/actions) |
+| [WEEK7 이슈](https://github.com/CatIsApple/PintOS/issues) | [빌드와 테스트](#빌드와-테스트) |
 
 ## 개발 환경
 
