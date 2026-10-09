@@ -28,6 +28,9 @@
 	 that are ready to run but not actually running. */
 static struct list ready_list;
 
+/* 자고있는 (BLOCK 상태의) 쓰레드만 모아놓은 리스트 */
+static struct list sleep_list;
+
 /* Idle thread. */
 static struct thread *idle_thread;
 
@@ -53,6 +56,11 @@ static unsigned thread_ticks; /* # of timer ticks since last yield. */
 	 If true, use multi-level feedback queue scheduler.
 	 Controlled by kernel command-line option "-o mlfqs". */
 bool thread_mlfqs;
+
+/* sleep_list를 외부 파일에서 참조를 못 하기 때문에 만들어놓은 게터(getter) 함수 */
+struct list get_sleep_list() {
+	return sleep_list;
+}
 
 static void kernel_thread(thread_func *, void *aux);
 
