@@ -58,4 +58,4 @@ make check
 | MLFQS 실행 로그 | `pintos/threads/build/tests/threads/mlfqs/<test-name>.output` |
 | 개별 판정 | 로그와 같은 경로의 `<test-name>.result` |
 
-자동 실행 결과는 [Actions](https://github.com/CatIsApple/PintOS/actions)에서 확인할 수 있습니다. **Threads checks → Run workflow**에서 전체 테스트를 수동 실행할 수도 있습니다.
+테스트는 개발 컨테이너에서 직접 실행하고, 실행 명령과 결과를 PR에 기록합니다.
