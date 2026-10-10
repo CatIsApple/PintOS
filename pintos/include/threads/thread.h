@@ -115,8 +115,6 @@ struct thread {
    Controlled by kernel command-line option "-o mlfqs". */
 extern bool thread_mlfqs;
 
-struct list get_sleep_list();
-
 void thread_init (void);
 void thread_start (void);
 
@@ -146,5 +144,6 @@ int thread_get_load_avg (void);
 
 void do_iret (struct intr_frame *tf);
 
+void thread_sleep(int64_t tick);
 void thread_awake(int64_t tick);
 #endif /* threads/thread.h */
