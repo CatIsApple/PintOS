@@ -401,9 +401,9 @@ void thread_sleep(int64_t tick)
 	struct thread *curr = thread_current();
 	int64_t cur_tick = timer_ticks();
 	
-	thread_block();
 	curr->awake_tick = (cur_tick+tick);
 	list_push_back(&sleep_list, &(curr->elem));
+	thread_block();
 	intr_enable();
 }
 
