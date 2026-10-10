@@ -11,6 +11,8 @@
 #include "threads/synch.h"
 #include "threads/vaddr.h"
 #include "intrinsic.h"
+// 현재 틱 갖고오기용 헤더 파일
+#include "devices/timer.h"
 #ifdef USERPROG
 #include "userprog/process.h"
 #endif
@@ -58,8 +60,8 @@ static unsigned thread_ticks; /* # of timer ticks since last yield. */
 bool thread_mlfqs;
 
 /* sleep_list를 외부 파일에서 참조를 못 하기 때문에 만들어놓은 게터(getter) 함수 */
-struct list get_sleep_list() {
-	return sleep_list;
+struct list *get_sleep_list() {
+	return &sleep_list;
 }
 
 static void kernel_thread(thread_func *, void *aux);
@@ -392,6 +394,22 @@ idle(void *idle_started_ UNUSED)
 			 7.11.1 "HLT Instruction". */
 		asm volatile("sti; hlt" : : : "memory");
 	}
+}
+
+void thread_sleep(int64_t tick)
+{
+	// thread_block 함수는 인터럽트를 강제로 꺼주어야 실행 가능
+	intr_disable();
+
+	// 지금 돌아가고있는 쓰레드를 갖고와서 언제 깨울지 기록한 다음, block 상태로 만듦
+	// 그리고 잠들 틱을 구조체에 기록
+	struct thread *curr = thread_current();
+	int64_t cur_tick = timer_ticks();
+	
+	thread_block();
+	curr->awake_tick = (cur_tick+tick);
+	list_push_back(&sleep_list, &(curr->elem));
+	intr_enable();
 }
 
 void thread_awake(int64_t tick)
