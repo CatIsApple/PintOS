@@ -213,6 +213,16 @@ tid_t thread_create(const char *name, int priority,
 	return tid;
 }
 
+
+/* ready_list 등을 priority 내림차순으로 정렬할 때 쓰는 비교 함수.
+   a의 priority가 b보다 크면 true (같으면 false라서 FIFO 유지). */
+bool cmp_priority(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED) // 정렬 함수에서 사용할 조건식.
+{
+	struct thread *ta = list_entry(a, struct thread, elem);
+	struct thread *tb = list_entry(b, struct thread, elem);
+	return ta->priority > tb->priority;
+}
+
 /* Puts the current thread to sleep.  It will not be scheduled
 	 again until awoken by thread_unblock().
 
@@ -243,7 +253,7 @@ void thread_unblock(struct thread *t)
 
 	old_level = intr_disable();
 	ASSERT(t->status == THREAD_BLOCKED);
-	list_push_back(&ready_list, &t->elem);
+list_insert_ordered(&ready_list, &t->elem, cmp_priority, NULL); // ready_list에 priority 내림차순 위치로 삽입. cmp_priority 사용.
 	t->status = THREAD_READY;
 	intr_set_level(old_level);
 }
@@ -308,7 +318,7 @@ void thread_yield(void)
 
 	old_level = intr_disable();
 	if (curr != idle_thread)
-		list_push_back(&ready_list, &curr->elem);
+	list_insert_ordered(&ready_list, &curr->elem, cmp_priority, NULL); // ready_list에 priority 내림차순 위치로 삽입. cmp_priority 사용.
 	do_schedule(THREAD_READY);
 	intr_set_level(old_level);
 }
@@ -405,9 +415,9 @@ void thread_sleep(int64_t tick)
 	// 그리고 잠들 틱을 구조체에 기록
 	struct thread *curr = thread_current();
 	int64_t cur_tick = timer_ticks();
-	
+
 	ASSERT(curr != idle_thread);
-	curr->awake_tick = (cur_tick+tick);
+	curr->awake_tick = (cur_tick + tick);
 	list_push_back(&sleep_list, &(curr->elem));
 	thread_block();
 
