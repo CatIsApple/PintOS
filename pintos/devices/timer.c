@@ -94,8 +94,15 @@ timer_sleep (int64_t ticks) {
 	int64_t awake_tick = start + ticks;
 
 	ASSERT (intr_get_level () == INTR_ON);
-	while (timer_elapsed (start) < ticks)
-		thread_yield ();
+	
+	// 지금 돌아가고있는 쓰레드를 갖고와서 언제 깨울지 기록한 다음, block 상태로 만듦
+	struct thread *curr = thread_current();
+	struct list sleep_list = get_sleep_list();
+	curr->awake_tick = awake_tick;
+	curr->status = THREAD_BLOCKED;
+	list_push_back(&sleep_list, &(curr->elem));
+	// while (timer_elapsed (start) < ticks)
+	// 	thread_yield ();
 }
 
 /* Suspends execution for approximately MS milliseconds. */

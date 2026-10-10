@@ -59,11 +59,6 @@ static unsigned thread_ticks; /* # of timer ticks since last yield. */
 	 Controlled by kernel command-line option "-o mlfqs". */
 bool thread_mlfqs;
 
-/* sleep_list를 외부 파일에서 참조를 못 하기 때문에 만들어놓은 게터(getter) 함수 */
-struct list *get_sleep_list() {
-	return &sleep_list;
-}
-
 static void kernel_thread(thread_func *, void *aux);
 
 static void idle(void *aux UNUSED);
