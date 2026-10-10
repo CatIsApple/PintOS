@@ -393,18 +393,25 @@ idle(void *idle_started_ UNUSED)
 
 void thread_sleep(int64_t tick)
 {
+	if (tick <= 0)
+	{
+		return;
+	}
+
 	// thread_block 함수는 인터럽트를 강제로 꺼주어야 실행 가능
-	intr_disable();
+	enum intr_level old_level = intr_disable();
 
 	// 지금 돌아가고있는 쓰레드를 갖고와서 언제 깨울지 기록한 다음, block 상태로 만듦
 	// 그리고 잠들 틱을 구조체에 기록
 	struct thread *curr = thread_current();
 	int64_t cur_tick = timer_ticks();
 	
+	ASSERT(curr != idle_thread);
 	curr->awake_tick = (cur_tick+tick);
 	list_push_back(&sleep_list, &(curr->elem));
 	thread_block();
-	intr_enable();
+
+	intr_set_level(old_level);
 }
 
 void thread_awake(int64_t tick)
