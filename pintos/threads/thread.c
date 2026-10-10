@@ -111,6 +111,7 @@ void thread_init(void)
 	/* Init the globla thread context */
 	lock_init(&tid_lock);
 	list_init(&ready_list);
+	list_init(&sleep_list);
 	list_init(&destruction_req);
 
 	/* Set up a thread structure for the running thread. */
