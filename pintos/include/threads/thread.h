@@ -94,6 +94,7 @@ struct thread {
 
 	/* Shared between thread.c and synch.c. */
 	struct list_elem elem;              /* List element. */
+	int64_t awake_tick;                 /* What tick to release block and return to READY */
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */
@@ -143,4 +144,6 @@ int thread_get_load_avg (void);
 
 void do_iret (struct intr_frame *tf);
 
+void thread_sleep(int64_t tick);
+void thread_awake(int64_t tick);
 #endif /* threads/thread.h */
