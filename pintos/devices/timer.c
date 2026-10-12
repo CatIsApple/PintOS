@@ -90,19 +90,13 @@ timer_elapsed (int64_t then) {
 /* Suspends execution for approximately TICKS timer ticks. */
 void
 timer_sleep (int64_t ticks) {
-	int64_t start = timer_ticks ();
-	int64_t awake_tick = start + ticks;
+	ASSERT(intr_get_level() == INTR_ON); //인터럽트 활성 확인
 
-	ASSERT (intr_get_level () == INTR_ON);
-	
-	// 지금 돌아가고있는 쓰레드를 갖고와서 언제 깨울지 기록한 다음, block 상태로 만듦
-	struct thread *curr = thread_current();
-	struct list sleep_list = get_sleep_list();
-	curr->awake_tick = awake_tick;
-	curr->status = THREAD_BLOCKED;
-	list_push_back(&sleep_list, &(curr->elem));
-	// while (timer_elapsed (start) < ticks)
-	// 	thread_yield ();
+	if(ticks <= 0){ //대기시간 검사
+		return;
+	}
+
+	thread_sleep(ticks); //스래드 슬립 함수 호출
 }
 
 /* Suspends execution for approximately MS milliseconds. */
@@ -133,6 +127,7 @@ timer_print_stats (void) {
 static void
 timer_interrupt (struct intr_frame *args UNUSED) {
 	ticks++;
+    thread_awake (ticks); //어웨이크 호출
 	thread_tick ();
 }
 
