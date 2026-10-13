@@ -335,7 +335,20 @@ void thread_yield(void)
 void thread_set_priority(int new_priority)
 {
 	thread_current()->priority = new_priority;
-	thread_yield();
+
+	// 리스트가 안 비어있을 때
+	if (!list_empty(&ready_list)) {
+		// ready 리스트의 첫 스레드를 갖고와서 우선순위를 읽음
+		// 리스트 노드를 한칸 뒤로 옮겨주는 이유는 리스트의 맨 앞과 맨 뒤가 센티넬 (가짜 요소)이기 때문임
+		struct list_elem *first_elem = list_head(&ready_list);
+		first_elem = list_next(first_elem);
+		struct thread *first_t = list_entry(first_elem, struct thread, elem);
+
+		// 바꾼 우선순위가 맨 앞의 우선순위보다 작으면 양보
+		if (new_priority < (first_t->priority)) {
+			thread_yield();
+		}
+	}
 }
 
 /* Returns the current thread's priority. */
