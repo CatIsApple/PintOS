@@ -105,17 +105,23 @@ sema_try_down (struct semaphore *sema) {
 void
 sema_up (struct semaphore *sema) {
 	enum intr_level old_level;
+	struct thread *unblock_th = NULL;
 
 	ASSERT (sema != NULL);
 
 	old_level = intr_disable ();
 	if (!list_empty (&sema->waiters)){
 		list_sort(&sema->waiters, cmp_priority, NULL); // 정렬 후 unblock.
-		thread_unblock (list_entry (list_pop_front (&sema->waiters),
-					struct thread, elem));
+		unblock_th = list_entry(list_pop_front(&sema->waiters), struct thread, elem);
+		thread_unblock (unblock_th);
 	}
 	sema->value++;
+	
 	intr_set_level (old_level);
+	if ((unblock_th != NULL) && (unblock_th->priority > thread_current()->priority)) {
+		
+		thread_yield();
+	}
 }
 
 static void sema_test_helper (void *sema_);
