@@ -211,6 +211,10 @@ tid_t thread_create(const char *name, int priority,
 	/* Add to run queue. */
 	thread_unblock(t);
 
+	if (t->priority > thread_current()->priority) {
+		thread_yield();
+	}
+
 	return tid;
 }
 
@@ -222,7 +226,8 @@ bool cmp_priority(const struct list_elem *a, const struct list_elem *b, void *au
 	ASSERT(a != NULL && b != NULL); // Null로 진입시 예외처리.
 	struct thread *ta = list_entry(a, struct thread, elem);
 	struct thread *tb = list_entry(b, struct thread, elem);
-	return ta->priority > tb->priority;
+	// printf("Comparing %s\'s priority %d with %s\'s priority %d\n", ta->name, ta->priority, tb->name, tb->priority);
+	return ((ta->priority) > (tb->priority));
 }
 
 /* Puts the current thread to sleep.  It will not be scheduled
@@ -255,7 +260,7 @@ void thread_unblock(struct thread *t)
 
 	old_level = intr_disable();
 	ASSERT(t->status == THREAD_BLOCKED);
-list_insert_ordered(&ready_list, &t->elem, cmp_priority, NULL); // ready_list에 priority 내림차순 위치로 삽입. cmp_priority 사용.
+	list_insert_ordered(&ready_list, &t->elem, cmp_priority, NULL); // ready_list에 priority 내림차순 위치로 삽입. cmp_priority 사용.
 	t->status = THREAD_READY;
 	intr_set_level(old_level);
 }
@@ -320,8 +325,9 @@ void thread_yield(void)
 
 	old_level = intr_disable();
 	if (curr != idle_thread)
-	list_insert_ordered(&ready_list, &curr->elem, cmp_priority, NULL); // ready_list에 priority 내림차순 위치로 삽입. cmp_priority 사용.
+		list_insert_ordered(&ready_list, &curr->elem, cmp_priority, NULL); // ready_list에 priority 내림차순 위치로 삽입. cmp_priority 사용.
 	do_schedule(THREAD_READY);
+
 	intr_set_level(old_level);
 }
 
@@ -329,6 +335,7 @@ void thread_yield(void)
 void thread_set_priority(int new_priority)
 {
 	thread_current()->priority = new_priority;
+	thread_yield();
 }
 
 /* Returns the current thread's priority. */
