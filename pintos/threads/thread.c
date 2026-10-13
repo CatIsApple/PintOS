@@ -219,6 +219,7 @@ tid_t thread_create(const char *name, int priority,
    a의 priority가 b보다 크면 true (같으면 false라서 FIFO 유지). */
 bool cmp_priority(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED) // 정렬 함수에서 사용할 조건식.
 {
+	ASSERT(a != NULL && b != NULL); // Null로 진입시 예외처리.
 	struct thread *ta = list_entry(a, struct thread, elem);
 	struct thread *tb = list_entry(b, struct thread, elem);
 	return ta->priority > tb->priority;
