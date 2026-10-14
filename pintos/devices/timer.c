@@ -90,11 +90,13 @@ timer_elapsed (int64_t then) {
 /* Suspends execution for approximately TICKS timer ticks. */
 void
 timer_sleep (int64_t ticks) {
-	int64_t start = timer_ticks ();
+	ASSERT(intr_get_level() == INTR_ON); //인터럽트 활성 확인
 
-	ASSERT (intr_get_level () == INTR_ON);
-	while (timer_elapsed (start) < ticks)
-		thread_yield ();
+	if(ticks <= 0){ //대기시간 검사
+		return;
+	}
+
+	thread_sleep(ticks); //스래드 슬립 함수 호출
 }
 
 /* Suspends execution for approximately MS milliseconds. */
@@ -125,6 +127,7 @@ timer_print_stats (void) {
 static void
 timer_interrupt (struct intr_frame *args UNUSED) {
 	ticks++;
+    thread_awake (ticks); //어웨이크 호출
 	thread_tick ();
 }
 
