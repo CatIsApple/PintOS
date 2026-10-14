@@ -334,10 +334,13 @@ void thread_yield(void)
 /* Sets the current thread's priority to NEW_PRIORITY. */
 void thread_set_priority(int new_priority)
 {
-	thread_current()->priority = new_priority;
-
+	enum intr_level old_level;
+	old_level = intr_disable();
+	
 	// 리스트가 안 비어있을 때
+	thread_current()->priority = new_priority;
 	if (!list_empty(&ready_list)) {
+			
 		// ready 리스트의 첫 스레드를 갖고와서 우선순위를 읽음
 		// list_head가 아니라 list_front인 이유는 리스트의 머리(와 꼬리)가 센티넬(가짜 요소)이기 때문임
 		struct list_elem *first_elem = list_front(&ready_list);
@@ -347,7 +350,9 @@ void thread_set_priority(int new_priority)
 		if (new_priority < (first_t->priority)) {
 			thread_yield();
 		}
+
 	}
+	intr_set_level(old_level);
 }
 
 /* Returns the current thread's priority. */
